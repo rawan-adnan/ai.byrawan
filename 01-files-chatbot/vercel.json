@@ -1,0 +1,6 @@
+{
+  "functions": {
+    "api/chat.js": { "includeFiles": "{knowledge/**,config.json}" },
+    "api/config.js": { "includeFiles": "config.json" }
+  }
+}
