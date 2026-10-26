@@ -61,8 +61,9 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:12p
   .app{padding-bottom:40px}
   .split{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:start}
   .split .view[data-view="habits"],.split .view[data-view="focus"]{display:block}
-  .split.settings-on .view[data-view="habits"],.split.settings-on .view[data-view="focus"]{display:none}
-  .split.settings-on{display:block}
+  .split.full-on .view[data-view="habits"],.split.full-on .view[data-view="focus"]{display:none}
+  .split.full-on{display:block}
+  .split.full-on .panel{max-width:760px}
   .view[data-view="focus"] .panel{position:sticky;top:20px}
 }
 
@@ -168,6 +169,41 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:12p
 
 .toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:12px;font-size:14px;z-index:50;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90vw;text-align:center}
 .toast.show{opacity:1}
+/* النظرة العامة */
+.ov-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.ov-nav{display:flex;align-items:center;gap:6px}
+.ov-nav button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;padding:0}
+.ov-nav button:disabled{opacity:.35;cursor:default}
+.ov-nav b{min-width:120px;text-align:center;font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:18px}
+.stat{background:var(--soft);border-radius:14px;padding:12px}
+.stat small{display:block;color:var(--muted);font-size:13px}
+.stat b{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--muted)}
+.ov-h3{font-size:15px;font-weight:600;margin:18px 0 10px}
+.bars{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:150px}
+.bar{display:grid;grid-template-rows:1fr auto auto;gap:4px;height:100%;text-align:center;font-size:12px;color:var(--muted)}
+.bar .col{background:var(--soft);border-radius:10px;position:relative;overflow:hidden}
+.bar .col i{position:absolute;inset:auto 0 0 0;background:var(--accent);border-radius:10px;transition:height .4s}
+.bar.today span{color:var(--accent);font-weight:700}
+.bar em{font-style:normal;font-variant-numeric:tabular-nums;color:var(--ink)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal .wd{text-align:center;font-size:12px;color:var(--muted)}
+.cal .c{aspect-ratio:1;border-radius:10px;display:grid;place-items:center;font-size:13px;font-variant-numeric:tabular-nums;background:var(--line);color:var(--muted);position:relative}
+.cal .c.l1{background:color-mix(in srgb,var(--accent) 30%,var(--card));color:var(--ink)}
+.cal .c.l2{background:color-mix(in srgb,var(--accent) 60%,var(--card));color:var(--ink)}
+.cal .c.l3{background:var(--accent);color:var(--on-accent)}
+.cal .c.future{background:none;border:1px dashed var(--line)}
+.cal .c.today{outline:2px solid var(--ink);outline-offset:1px}
+.cal .c.f::after{content:"";position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.7}
+.legend{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
+.legend i{width:14px;height:14px;border-radius:4px;background:var(--line)}
+.hb{display:grid;gap:10px}
+.hb-row{display:grid;grid-template-columns:minmax(0,1fr) 46px;gap:4px 10px;align-items:center}
+.hb-row .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px}
+.hb-row .pc{text-align:left;font-variant-numeric:tabular-nums;font-weight:600;font-size:14px}
+.hb-row .tr{grid-column:1/-1;height:8px;border-radius:99px;background:var(--soft);overflow:hidden}
+.hb-row .tr i{display:block;height:100%;background:var(--accent);border-radius:99px}
 footer.made{text-align:center;font-size:12px;color:var(--muted);margin-top:28px}
 footer.made a{color:inherit}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -189,6 +225,7 @@ footer.made a{color:inherit}
   <nav class="tabs" role="tablist">
     <button role="tab" data-tab="habits" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="m8 12 3 3 5-6"/></svg>العادات</button>
     <button role="tab" data-tab="focus" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>التركيز</button>
+    <button role="tab" data-tab="stats" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>نظرة عامة</button>
     <button role="tab" data-tab="settings" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>الإعدادات</button>
   </nav>
 
@@ -231,6 +268,27 @@ footer.made a{color:inherit}
         <div class="presets" id="presets"></div>
         <div class="link-habit"><label for="linkSel">لما تخلص جلسة تركيز، علّم على:</label><select id="linkSel"></select></div>
         <p class="today-focus">ركّزت اليوم <b id="focusToday">0</b> دقيقة</p>
+      </div>
+    </section>
+
+    <!-- النظرة العامة -->
+    <section class="view" data-view="stats">
+      <div class="panel">
+        <div class="ov-head">
+          <div class="modes" role="group" aria-label="المدة" style="min-width:200px">
+            <button type="button" data-range="week" aria-pressed="true">أسبوع</button>
+            <button type="button" data-range="month" aria-pressed="false">شهر</button>
+          </div>
+          <div class="ov-nav">
+            <button type="button" id="ovPrev" aria-label="الفترة الي قبل"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg></button>
+            <b id="ovLabel"></b>
+            <button type="button" id="ovNext" aria-label="الفترة الي بعد"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 6-6 6 6 6"/></svg></button>
+          </div>
+        </div>
+        <div class="stats" id="ovStats"></div>
+        <div id="ovChart"></div>
+        <h3 class="ov-h3">كل عادة</h3>
+        <div class="hb" id="ovHabits"></div>
       </div>
     </section>
 
@@ -277,7 +335,7 @@ const EMOJIS = ["📖","💧","🏃","🧘","🥗","😴","✍️","🎧","🌱"
 const DEFAULT = () => ({
   settings:{title:"عاداتي",theme:"lavender",accent:null,mode:"auto",
     timer:{focus:25,short:5,long:15,every:4},sound:true,autoStart:false,linkHabit:""},
-  habits:[], focus:{}, timer:{mode:"focus",endAt:null,left:null,count:0}
+  habits:[], focus:{}, sessions:{}, timer:{mode:"focus",endAt:null,left:null,count:0}
 });
 let S = load();
 function load(){
@@ -425,7 +483,7 @@ function finish(skipped){
   stopLoop();
   const was = T.mode;
   if(was==="focus"){
-    if(!skipped){ const k=dkey(); S.focus[k]=(S.focus[k]||0)+S.settings.timer.focus;
+    if(!skipped){ const k=dkey(); S.focus[k]=(S.focus[k]||0)+S.settings.timer.focus; S.sessions=S.sessions||{}; S.sessions[k]=(S.sessions[k]||0)+1;
       const h = S.habits.find(x=>x.id===S.settings.linkHabit); if(h && !h.done[k]){ h.done[k]=true; renderHabits(); } }
     T.count++;
     T.mode = T.count % S.settings.timer.every === 0 ? "long" : "short";
@@ -498,7 +556,7 @@ $("#importIn").onchange = async e => {
   e.target.value="";
 };
 $("#demoBtn").onclick = () => {
-  const today=new Date(), mk=(name,emoji,pattern)=>{ const done={}; pattern.forEach((on,i)=>{ if(on) done[dkey(addDays(today,i-pattern.length+1))]=true; }); return {id:uid(),name,emoji,done,created:dkey()}; };
+  const today=new Date(), mk=(name,emoji,pattern)=>{ const done={}; const full=[]; while(full.length<42) full.unshift(...pattern); const pt=full.slice(-42); pt.forEach((on,i)=>{ if(on) done[dkey(addDays(today,i-pt.length+1))]=true; }); return {id:uid(),name,emoji,done,created:dkey(addDays(today,-41))}; };
   S.habits = [
     mk("قراية 10 صفحات","📖",[1,1,0,1,1,1,1,1,1,1,1,1,1,0]),
     mk("8 كاسات مي","💧",[1,1,1,1,1,1,1,1,1,1,1,1,1,1]),
@@ -506,23 +564,90 @@ $("#demoBtn").onclick = () => {
     mk("تأمل 5 دقايق","🧘",[0,0,0,0,0,1,1,0,1,1,1,1,1,0]),
     mk("نوم قبل 12","😴",[1,0,1,1,0,1,1,1,0,1,1,0,1,0])
   ];
-  S.focus[dkey()] = 75; S.timer.count = 3;
+  S.focus={}; S.sessions={}; for(let i=0;i<42;i++){ if(i%3!==2){ const k=dkey(addDays(today,-i)); const n=1+((i*7)%4); S.sessions[k]=n; S.focus[k]=n*25; } } S.timer.count = 3;
   save(); renderAll(); toast("انعبّت أمثلة"); switchTab("habits");
 };
 $("#wipeBtn").onclick = e => { const b=e.currentTarget; if(!b.dataset.sure){ b.dataset.sure=1; b.className="btn danger"; b.textContent="أكيد؟ اكبس كمان مرة"; setTimeout(()=>{delete b.dataset.sure;b.className="btn line";b.textContent="امسح كل شي"},4000); return; }
   stopLoop(); S=DEFAULT(); Object.assign(T,S.timer); S.timer=T; save(); applyTheme(); renderAll(); toast("انمسح كل شي"); delete b.dataset.sure; b.className="btn line"; b.textContent="امسح كل شي"; };
 
+// ---------- النظرة العامة ----------
+let ovRange = "week", ovOffset = 0;
+const startOfWeek = d => { const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()-((x.getDay()+1)%7)); return x; }; // الأسبوع بيبلش السبت
+function ovPeriod(){
+  const now = new Date();
+  if(ovRange==="week"){ const a=addDays(startOfWeek(now),ovOffset*7); return {from:a,days:[...Array(7)].map((_,i)=>addDays(a,i))}; }
+  const a = new Date(now.getFullYear(), now.getMonth()+ovOffset, 1), n = new Date(a.getFullYear(),a.getMonth()+1,0).getDate();
+  return {from:a,days:[...Array(n)].map((_,i)=>new Date(a.getFullYear(),a.getMonth(),i+1))};
+}
+function bestStreak(h){
+  const ks = Object.keys(h.done).sort(); let best=0, cur=0, prev=null;
+  ks.forEach(k=>{ const d=new Date(k+"T00:00"); cur = prev && dkey(addDays(prev,1))===k ? cur+1 : 1; best=Math.max(best,cur); prev=d; });
+  return best;
+}
+function renderStats(){
+  const {days} = ovPeriod(), tk = dkey(), now = new Date();
+  const fmtD = d => d.toLocaleDateString("ar",{day:"numeric",month:"long",numberingSystem:"latn"});
+  $("#ovLabel").textContent = ovRange==="week" ? fmtD(days[0])+" - "+fmtD(days[6]) : days[0].toLocaleDateString("ar",{month:"long",year:"numeric",numberingSystem:"latn"});
+  $("#ovNext").disabled = ovOffset>=0;
+  document.querySelectorAll("[data-range]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.range===ovRange));
+  const past = days.filter(d=>dkey(d)<=tk);
+  // لكل يوم: كم عادة كانت موجودة، وكم وحدة انعملت
+  const dayInfo = d => { const k=dkey(d); const hs=S.habits.filter(h=>(h.created||"0")<=k || h.done[k]); const done=hs.filter(h=>h.done[k]).length; return {k,total:hs.length,done,pct:hs.length?done/hs.length:0}; };
+  const infos = past.map(dayInfo);
+  const possible = infos.reduce((a,i)=>a+i.total,0), checks = infos.reduce((a,i)=>a+i.done,0);
+  const perfect = infos.filter(i=>i.total && i.done===i.total).length;
+  const fmin = past.reduce((a,d)=>a+(S.focus[dkey(d)]||0),0), fses = past.reduce((a,d)=>a+((S.sessions||{})[dkey(d)]||0),0);
+  const hrs = fmin>=60 ? (Math.floor(fmin/60)+" س "+(fmin%60?Math.round(fmin%60)+" د":"")) : Math.round(fmin)+" د";
+  const stat = (lbl,val,sub) => el("div",{className:"stat"},[el("small",{textContent:lbl}),el("b",{textContent:val}),sub?el("span",{textContent:" "+sub}):""]);
+  $("#ovStats").replaceChildren(
+    stat("الالتزام", possible?Math.round(checks/possible*100)+"%":"-"),
+    stat("أيام كاملة", perfect, "من "+past.length),
+    stat("وقت التركيز", hrs),
+    stat("جلسات تركيز", fses)
+  );
+  const ch = $("#ovChart"); ch.textContent="";
+  if(ovRange==="week"){
+    ch.append(el("h3",{className:"ov-h3",textContent:"كل يوم"}));
+    ch.append(el("div",{className:"bars"}, days.map(d=>{ const i=dayInfo(d), fut=dkey(d)>tk;
+      const col=el("div",{className:"col"},[el("i",{style:"height:"+(fut?0:Math.round(i.pct*100))+"%"})]);
+      return el("div",{className:"bar"+(dkey(d)===tk?" today":"")},[col, el("em",{textContent:fut||!i.total?"":i.done+"/"+i.total}), el("span",{textContent:d.toLocaleDateString("ar",{weekday:"short"})})]); })));
+  } else {
+    ch.append(el("h3",{className:"ov-h3",textContent:"الشهر"}));
+    const wds = [...Array(7)].map((_,i)=>addDays(startOfWeek(now),i));
+    const cal = el("div",{className:"cal"}, wds.map(d=>el("div",{className:"wd",textContent:shortDay(d)})));
+    const lead = (days[0].getDay()+1)%7; for(let i=0;i<lead;i++) cal.append(el("div"));
+    days.forEach(d=>{ const i=dayInfo(d), k=dkey(d), fut=k>tk;
+      const lv = fut||!i.total||!i.done ? "" : i.pct>=1 ? " l3" : i.pct>=.5 ? " l2" : " l1";
+      cal.append(el("div",{className:"c"+lv+(fut?" future":"")+(k===tk?" today":"")+(S.focus[k]?" f":""),textContent:d.getDate(),title:fmtD(d)+(i.total?": "+i.done+"/"+i.total:"")})); });
+    ch.append(cal, el("div",{className:"legend"},[document.createTextNode("ولا شي"),el("i"),el("i",{style:"background:color-mix(in srgb,var(--accent) 30%,var(--card))"}),el("i",{style:"background:color-mix(in srgb,var(--accent) 60%,var(--card))"}),el("i",{style:"background:var(--accent)"}),document.createTextNode("كلهن · النقطة = في تركيز")]));
+  }
+  const hb = $("#ovHabits"); hb.textContent="";
+  if(!S.habits.length){ hb.append(el("p",{className:"hint",textContent:"زيد عادات لتشوف تقدمها هون."})); return; }
+  S.habits.map(h=>{ const ds=past.filter(d=>(h.created||"0")<=dkey(d)||h.done[dkey(d)]); const n=ds.filter(d=>h.done[dkey(d)]).length; return {h,n,t:ds.length,p:ds.length?n/ds.length:0}; })
+   .sort((a,b)=>b.p-a.p)
+   .forEach(({h,n,t,p})=>hb.append(el("div",{className:"hb-row"},[
+     el("div",{className:"nm",textContent:h.emoji+" "+h.name}),
+     el("div",{className:"pc",textContent:Math.round(p*100)+"%"}),
+     el("div",{className:"tr",title:n+" من "+t+" · أطول سلسلة "+bestStreak(h)},[el("i",{style:"width:"+Math.round(p*100)+"%"})]),
+     el("div",{className:"hint",style:"grid-column:1/-1",textContent:n+" من "+t+" يوم · أطول سلسلة "+bestStreak(h)+" 🔥"})
+   ])));
+}
+document.querySelectorAll("[data-range]").forEach(b=>b.onclick=()=>{ ovRange=b.dataset.range; ovOffset=0; renderStats(); });
+$("#ovPrev").onclick = () => { ovOffset--; renderStats(); };
+$("#ovNext").onclick = () => { if(ovOffset<0){ ovOffset++; renderStats(); } };
+
 // ---------- التبويبات ----------
 function switchTab(name){
   document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===name || (name==="habits" && b.dataset.tab==="habits")));
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on", v.dataset.view===name));
-  $("#split").classList.toggle("settings-on", name==="settings");
+  $("#split").classList.toggle("full-on", name==="settings" || name==="stats");
   if(name==="settings") fillSettings();
+  if(name==="stats") renderStats();
   scrollTo({top:0});
 }
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
 
-function renderAll(){ renderHabits(); renderTimer(); fillSettings(); }
+function renderAll(){ renderHabits(); renderTimer(); fillSettings(); renderStats(); }
 applyTheme(); renderAll();
 if(running()){ if(leftMs()<=0) finish(); else loop(); }
 setInterval(()=>{ if($("#dayLabel").textContent!==weekdayAr(new Date())) renderHabits(); }, 60000);
