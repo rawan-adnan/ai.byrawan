@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>عاداتي</title>
+<meta name="description" content="تطبيق عادات ومؤقت تركيز، مبني بكلود">
+<meta name="theme-color" content="#f5f3fb">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="عاداتي">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<style>
+/* الألوان كلها متغيرات، والثيم بيبدّل --accent بس، والباقي بيتشتق منو */
+:root{
+  --accent:#6b4fe0;
+  --bg:#f6f5f9; --card:#ffffff; --ink:#18171f; --muted:#6f6c7a; --line:#e8e6ef;
+  --soft:color-mix(in srgb,var(--accent) 12%,var(--card));
+  --soft2:color-mix(in srgb,var(--accent) 22%,var(--card));
+  --tint:color-mix(in srgb,var(--accent) 5%,var(--bg));
+  --on-accent:#fff;
+  --font:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
+  --r:18px;
+  color-scheme:light;
+}
+:root[data-mode="dark"]{
+  --bg:#111016; --card:#1b1a22; --ink:#f1eff7; --muted:#a3a0ae; --line:#2c2a36;
+  --soft:color-mix(in srgb,var(--accent) 20%,var(--card));
+  --soft2:color-mix(in srgb,var(--accent) 34%,var(--card));
+  --tint:color-mix(in srgb,var(--accent) 6%,var(--bg));
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--tint);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.app{max-width:1040px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.top h1{font-size:26px;margin:0;font-weight:700;line-height:1.2}
+.top .day{color:var(--muted);font-size:14px;margin:2px 0 0}
+.ring-sm{width:56px;height:56px;flex:none;position:relative}
+.ring-sm span{position:absolute;inset:0;display:grid;place-items:center;font-weight:600;font-size:14px;font-variant-numeric:tabular-nums}
+
+/* التبويبات: تحت عالموبايل، وعالشاشات الكبيرة القسمين جنب بعض */
+.tabs{position:fixed;inset:auto 0 0 0;z-index:20;display:flex;justify-content:center;gap:6px;padding:10px max(16px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+.tabs button{flex:1;max-width:160px;border:0;background:none;border-radius:14px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);font-size:13px}
+.tabs button svg{width:22px;height:22px}
+.tabs button[aria-selected="true"]{background:var(--soft);color:var(--accent);font-weight:600}
+.view{display:none}
+.view.on{display:block}
+@media (min-width:880px){
+  .tabs{position:static;background:none;border:0;backdrop-filter:none;justify-content:flex-start;padding:0;margin-bottom:18px}
+  .tabs button{flex:none;flex-direction:row;gap:8px;padding:8px 16px;font-size:15px}
+  .tabs [data-tab="focus"]{display:none}
+  .app{padding-bottom:40px}
+  .split{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:start}
+  .split .view[data-view="habits"],.split .view[data-view="focus"]{display:block}
+  .split.settings-on .view[data-view="habits"],.split.settings-on .view[data-view="focus"]{display:none}
+  .split.settings-on{display:block}
+  .view[data-view="focus"] .panel{position:sticky;top:20px}
+}
+
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.section-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px}
+.section-h h2{font-size:18px;margin:0;font-weight:600}
+.muted{color:var(--muted)}
+.btn{border:0;border-radius:12px;padding:9px 16px;background:var(--accent);color:var(--on-accent);font-weight:600}
+.btn.ghost{background:var(--soft);color:var(--accent)}
+.btn.line{background:none;border:1px solid var(--line);color:var(--ink);font-weight:500}
+.btn.danger{background:#c84646;color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* العادات */
+.week-head,.habit{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+.week-head{padding:0 6px 8px;font-size:12px;color:var(--muted)}
+.days{display:grid;grid-template-columns:repeat(7,28px);gap:6px}
+.days span{text-align:center}
+.days .today-l{color:var(--accent);font-weight:700}
+.list{display:grid;gap:8px}
+.habit{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 10px 10px 12px;transition:border-color .2s,background .2s}
+.habit.done{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--card))}
+.h-main{display:flex;align-items:center;gap:10px;min-width:0}
+.check{flex:none;width:42px;height:42px;border-radius:14px;border:2px solid var(--line);background:var(--card);display:grid;place-items:center;font-size:20px;transition:transform .15s,background .2s,border-color .2s}
+.check:active{transform:scale(.92)}
+.habit.done .check{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.h-text{min-width:0}
+.h-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.h-meta{font-size:13px;color:var(--muted);display:flex;gap:10px;align-items:center}
+.streak b{color:var(--ink);font-variant-numeric:tabular-nums}
+.h-side{display:flex;align-items:center;gap:6px}
+.dot{width:28px;height:28px;border-radius:9px;border:0;background:var(--line);opacity:.55;padding:0}
+.dot.on{background:var(--accent);opacity:1}
+.dot.today{outline:2px solid color-mix(in srgb,var(--accent) 50%,transparent);outline-offset:1px}
+.more{border:0;background:none;color:var(--muted);width:30px;height:30px;border-radius:10px;font-size:18px;line-height:1}
+.more:hover{background:var(--soft)}
+.mini{display:none;gap:3px}
+.mini i{width:9px;height:9px;border-radius:3px;background:var(--line)}
+.mini i.on{background:var(--accent)}
+@media (max-width:520px){.habit .days{display:none}.week-head .days{display:none}.mini{display:flex}}
+.empty{text-align:center;padding:26px 10px;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:4px}
+
+.add-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.add-row input{flex:1 1 180px;min-width:0;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:9px 12px}
+.emoji-pick{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.emoji-pick button{border:1px solid var(--line);background:var(--card);border-radius:10px;width:38px;height:38px;font-size:19px;padding:0}
+.emoji-pick button[aria-pressed="true"]{border-color:var(--accent);background:var(--soft)}
+
+/* المؤقت */
+.modes{display:flex;gap:6px;background:var(--soft);padding:4px;border-radius:14px}
+.modes button{flex:1;border:0;background:none;border-radius:11px;padding:7px 4px;font-size:14px;color:var(--muted)}
+.modes button[aria-pressed="true"]{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 4px rgb(0 0 0/.08)}
+.dial{position:relative;width:min(260px,72vw);aspect-ratio:1;margin:22px auto 10px;max-width:100%}
+.dial svg{width:100%;height:100%;transform:rotate(-90deg)}
+.dial .time{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:2px;direction:ltr}
+.dial .time b{font-size:clamp(44px,13vw,60px);font-weight:600;letter-spacing:.02em;font-variant-numeric:tabular-nums;line-height:1}
+.dial .time small{font-size:14px;color:var(--muted);direction:rtl}
+.controls{display:flex;justify-content:center;align-items:center;gap:12px;margin:8px 0 14px}
+.play{width:68px;height:68px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;box-shadow:0 8px 22px color-mix(in srgb,var(--accent) 35%,transparent)}
+.play svg{width:28px;height:28px}
+.round{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;color:var(--muted)}
+.round svg{width:20px;height:20px}
+.sessions{display:flex;justify-content:center;gap:6px;margin-bottom:6px}
+.sessions i{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.sessions i.on{background:var(--accent)}
+.presets{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:5px 12px;font-size:14px;direction:ltr}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--soft);color:var(--accent);font-weight:600}
+.link-habit{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:14px;flex-wrap:wrap;justify-content:center}
+.link-habit select{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:6px 10px;max-width:100%}
+.today-focus{text-align:center;font-size:14px;color:var(--muted);margin-top:10px}
+.today-focus b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* الإعدادات */
+.set-grid{display:grid;gap:16px}
+.field{display:grid;gap:6px}
+.field>label,.field>.lbl{font-weight:600;font-size:15px}
+.field input[type=text],.field input[type=number]{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:9px 12px;width:100%}
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.theme{border:2px solid var(--line);background:var(--card);border-radius:14px;padding:10px 8px;display:grid;justify-items:center;gap:6px;font-size:13px}
+.theme i{width:30px;height:30px;border-radius:50%}
+.theme[aria-pressed="true"]{border-color:var(--ink)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:7px 14px}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--soft);color:var(--accent);font-weight:600}
+.nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.nums label{font-size:13px;color:var(--muted);display:grid;gap:4px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.switch{width:48px;height:28px;border-radius:99px;border:0;background:var(--line);position:relative;flex:none;padding:0}
+.switch::after{content:"";position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:right .2s;box-shadow:0 1px 3px rgb(0 0 0/.2)}
+.switch[aria-checked="true"]{background:var(--accent)}
+.switch[aria-checked="true"]::after{right:23px}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap}
+.hint{font-size:13px;color:var(--muted);margin:0}
+
+/* النافذة */
+.sheet-bg{position:fixed;inset:0;background:rgb(0 0 0/.35);z-index:40;display:grid;align-items:end;justify-items:center}
+.sheet{background:var(--card);width:100%;max-width:480px;border-radius:22px 22px 0 0;padding:20px max(18px,env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));display:grid;gap:14px}
+@media (min-width:600px){.sheet-bg{align-items:center}.sheet{border-radius:22px}}
+.sheet h3{margin:0;font-size:18px}
+.sheet input{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:9px 12px;width:100%}
+
+.toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:12px;font-size:14px;z-index:50;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+footer.made{text-align:center;font-size:12px;color:var(--muted);margin-top:28px}
+footer.made a{color:inherit}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div>
+      <h1 id="appTitle">عاداتي</h1>
+      <p class="day" id="dayLabel"></p>
+    </div>
+    <div class="ring-sm" aria-label="تقدم اليوم">
+      <svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="23" fill="none" stroke="var(--line)" stroke-width="6"/><circle id="miniRing" cx="28" cy="28" r="23" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="144.5" stroke-dashoffset="144.5" transform="rotate(-90 28 28)" style="transition:stroke-dashoffset .4s"/></svg>
+      <span id="miniTxt">0/0</span>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="habits" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="m8 12 3 3 5-6"/></svg>العادات</button>
+    <button role="tab" data-tab="focus" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>التركيز</button>
+    <button role="tab" data-tab="settings" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>الإعدادات</button>
+  </nav>
+
+  <div class="split" id="split">
+    <!-- العادات -->
+    <section class="view on" data-view="habits">
+      <div class="panel">
+        <div class="section-h"><h2>عادات اليوم</h2><button class="btn ghost" id="addToggle" type="button">+ عادة</button></div>
+        <div class="week-head" id="weekHead"></div>
+        <div class="list" id="list"></div>
+        <form id="addForm" hidden>
+          <div class="add-row">
+            <input id="newName" type="text" maxlength="40" placeholder="مثلا: قراية 10 صفحات" autocomplete="off" required>
+            <button class="btn" type="submit">زيد</button>
+          </div>
+          <div class="emoji-pick" id="emojiPick"></div>
+        </form>
+      </div>
+    </section>
+
+    <!-- التركيز -->
+    <section class="view" data-view="focus">
+      <div class="panel">
+        <div class="section-h"><h2>مؤقت التركيز</h2></div>
+        <div class="modes" role="group" aria-label="نوع الجلسة">
+          <button type="button" data-mode="focus" aria-pressed="true">تركيز</button>
+          <button type="button" data-mode="short" aria-pressed="false">استراحة قصيرة</button>
+          <button type="button" data-mode="long" aria-pressed="false">استراحة طويلة</button>
+        </div>
+        <div class="dial">
+          <svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="88" fill="none" stroke="var(--soft)" stroke-width="12"/><circle id="dialRing" cx="100" cy="100" r="88" fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round" stroke-dasharray="552.9" stroke-dashoffset="0"/></svg>
+          <div class="time"><b id="clock">25:00</b><small id="clockLbl">جلسة تركيز</small></div>
+        </div>
+        <div class="sessions" id="sessions" aria-label="الجلسات قبل الاستراحة الطويلة"></div>
+        <div class="controls">
+          <button class="round" id="resetBtn" type="button" aria-label="إعادة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+          <button class="play" id="playBtn" type="button" aria-label="ابدأ"><svg id="playIco" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10.4-6.5a1 1 0 0 0 0-1.8L9.5 4.6A1 1 0 0 0 8 5.5z"/></svg></button>
+          <button class="round" id="skipBtn" type="button" aria-label="تخطي"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1)"><path d="m5 4 10 8-10 8z"/><path d="M19 5v14"/></svg></button>
+        </div>
+        <div class="presets" id="presets"></div>
+        <div class="link-habit"><label for="linkSel">لما تخلص جلسة تركيز، علّم على:</label><select id="linkSel"></select></div>
+        <p class="today-focus">ركّزت اليوم <b id="focusToday">0</b> دقيقة</p>
+      </div>
+    </section>
+
+    <!-- الإعدادات -->
+    <section class="view" data-view="settings">
+      <div class="panel set-grid">
+        <div class="section-h"><h2>الإعدادات</h2></div>
+        <div class="field"><label for="titleIn">اسم التطبيق</label><input id="titleIn" type="text" maxlength="30"></div>
+        <div class="field"><span class="lbl">الثيم</span><div class="themes" id="themes"></div>
+          <div class="toggle"><label for="customColor" class="hint">أو اختار لونك:</label><input id="customColor" type="color" style="width:52px;height:34px;border:0;background:none;padding:0"></div></div>
+        <div class="field"><span class="lbl">الوضع</span><div class="seg" id="modeSeg">
+          <button type="button" data-v="auto">حسب الجهاز</button><button type="button" data-v="light">فاتح</button><button type="button" data-v="dark">غامق</button></div></div>
+        <div class="field"><span class="lbl">أوقات المؤقت (بالدقايق)</span><div class="nums">
+          <label>تركيز<input id="tFocus" type="number" min="1" max="180"></label>
+          <label>استراحة قصيرة<input id="tShort" type="number" min="1" max="60"></label>
+          <label>استراحة طويلة<input id="tLong" type="number" min="1" max="90"></label>
+          <label>استراحة طويلة بعد كم جلسة<input id="tEvery" type="number" min="2" max="10"></label></div></div>
+        <div class="toggle"><span>صوت لما يخلص الوقت</span><button class="switch" id="swSound" role="switch" type="button" aria-checked="true" aria-label="صوت"></button></div>
+        <div class="toggle"><span>الجلسة الجاية تبلش لحالها</span><button class="switch" id="swAuto" role="switch" type="button" aria-checked="false" aria-label="بدء تلقائي"></button></div>
+        <div class="toggle"><span>إشعار لما يخلص الوقت</span><button class="btn line" id="notifBtn" type="button">فعّل</button></div>
+        <div class="field"><span class="lbl">نسخة احتياطية</span>
+          <p class="hint">بياناتك محفوظة على هالجهاز بس. نزّل نسخة لتنقلها لجهاز تاني أو تحفظها.</p>
+          <div class="row-btns"><button class="btn line" id="exportBtn" type="button">نزّل نسخة</button><label class="btn line" for="importIn" style="display:inline-block">رجّع نسخة</label><input id="importIn" type="file" accept="application/json" hidden></div></div>
+        <div class="field"><span class="lbl">بيانات تجريبية</span><p class="hint">لتشوف شكل التطبيق مليان، أو لتمسح كل شي وتبلش من جديد.</p>
+          <div class="row-btns"><button class="btn line" id="demoBtn" type="button">عبّي أمثلة</button><button class="btn line" id="wipeBtn" type="button">امسح كل شي</button></div></div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="made">مبني بكلود · <a href="https://www.instagram.com/ai.byrawan/" target="_blank" rel="noopener"><bdi dir="ltr">@ai.byrawan</bdi></a></footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+"use strict";
+// ---------- الحالة والتخزين ----------
+const KEY = "habits-focus-v1";
+const THEMES = {
+  lavender:{name:"خزامى",c:"#6b4fe0"}, mint:{name:"نعناع",c:"#1f9d7a"}, ocean:{name:"بحر",c:"#2f6fdb"},
+  rose:{name:"ورد",c:"#d6457a"}, sand:{name:"رمل",c:"#c27a2c"}, mono:{name:"فحمي",c:"#3b3a42"}
+};
+const EMOJIS = ["📖","💧","🏃","🧘","🥗","😴","✍️","🎧","🌱","💊","🧹","📵","🙏","💪","🎨","🗣️"];
+const DEFAULT = () => ({
+  settings:{title:"عاداتي",theme:"lavender",accent:null,mode:"auto",
+    timer:{focus:25,short:5,long:15,every:4},sound:true,autoStart:false,linkHabit:""},
+  habits:[], focus:{}, timer:{mode:"focus",endAt:null,left:null,count:0}
+});
+let S = load();
+function load(){
+  try{ const raw = localStorage.getItem(KEY); if(raw){ const d = JSON.parse(raw); const def = DEFAULT();
+    return {...def,...d,settings:{...def.settings,...d.settings,timer:{...def.settings.timer,...(d.settings||{}).timer}},timer:{...def.timer,...d.timer}}; } }catch(e){}
+  return DEFAULT();
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast("ما قدرت احفظ، يمكن التخزين ممتلي"); } }
+
+// ---------- التواريخ ----------
+const dkey = (d=new Date()) => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const weekdayAr = d => d.toLocaleDateString("ar",{weekday:"long"});
+const shortDay = d => d.toLocaleDateString("ar",{weekday:"narrow"});
+function streak(h){
+  let n=0, d=new Date();
+  if(!h.done[dkey(d)]) d = addDays(d,-1);
+  while(h.done[dkey(d)]){ n++; d = addDays(d,-1); }
+  return n;
+}
+
+// ---------- الثيم ----------
+const mq = matchMedia("(prefers-color-scheme: dark)");
+function applyTheme(){
+  const c = S.settings.accent || THEMES[S.settings.theme]?.c || THEMES.lavender.c;
+  const root = document.documentElement;
+  root.style.setProperty("--accent", c);
+  const dark = S.settings.mode === "dark" || (S.settings.mode === "auto" && mq.matches);
+  root.dataset.mode = dark ? "dark" : "light";
+  document.querySelector('meta[name="theme-color"]').content = dark ? "#111016" : "#f6f5f9";
+  // لون النص فوق اللون الأساسي: أسود إذا اللون فاتح
+  const [r,g,b] = [1,3,5].map(i=>parseInt(c.slice(i,i+2),16));
+  root.style.setProperty("--on-accent", (r*299+g*587+b*114)/1000 > 165 ? "#16151c" : "#fff");
+}
+mq.addEventListener?.("change", applyTheme);
+
+// ---------- أدوات ----------
+const $ = s => document.querySelector(s);
+const el = (tag, props={}, kids=[]) => { const e = Object.assign(document.createElement(tag), props); kids.forEach(k=>e.append(k)); return e; };
+let toastT;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2200); }
+const uid = () => Math.random().toString(36).slice(2,9);
+
+// ---------- العادات ----------
+let pickedEmoji = EMOJIS[0];
+function renderHabits(){
+  const today = new Date(), tk = dkey(today);
+  const days = [...Array(7)].map((_,i)=>addDays(today,i-6));
+  $("#dayLabel").textContent = weekdayAr(today);
+  $("#appTitle").textContent = S.settings.title; document.title = S.settings.title;
+
+  const wh = $("#weekHead"); wh.textContent="";
+  if(S.habits.length){
+    const ds = el("div",{className:"days"}, days.map((d,i)=>el("span",{className:i===6?"today-l":"",textContent:shortDay(d)})));
+    wh.append(el("span"), ds);
+  }
+  const list = $("#list"); list.textContent="";
+  if(!S.habits.length){
+    const demo = el("button",{className:"btn ghost",type:"button",textContent:"عبّي أمثلة لتشوف الشكل"}); demo.style.marginTop="12px"; demo.onclick=()=>$("#demoBtn").click();
+    list.append(el("div",{className:"empty"},[el("b",{textContent:"ما في عادات لسا"}),document.createTextNode("زيد أول عادة من زر + فوق."),el("br"),demo]));
+  }
+  S.habits.forEach(h=>{
+    const isDone = !!h.done[tk];
+    const s = streak(h);
+    const check = el("button",{className:"check",type:"button",textContent:isDone?"✓":h.emoji,ariaLabel:(isDone?"شيل العلامة عن ":"علّم على ")+h.name});
+    check.setAttribute("aria-pressed", isDone);
+    check.onclick = () => toggleDay(h, tk);
+    const mini = el("span",{className:"mini",ariaHidden:"true"}, days.map(d=>el("i",{className:h.done[dkey(d)]?"on":""})));
+    const meta = el("div",{className:"h-meta"},[el("span",{className:"streak",innerHTML:"🔥 <b>"+s+"</b> "+(s===1?"يوم":"أيام")}), mini]);
+    const main = el("div",{className:"h-main"},[check, el("div",{className:"h-text"},[el("div",{className:"h-name",textContent:h.name}), meta])]);
+    const dots = el("div",{className:"days"}, days.map((d,i)=>{
+      const k = dkey(d), on = !!h.done[k];
+      const b = el("button",{className:"dot"+(on?" on":"")+(i===6?" today":""),type:"button",ariaLabel:weekdayAr(d)+(on?": مخلّصة":": لسا")});
+      b.onclick = () => toggleDay(h, k); return b;
+    }));
+    const more = el("button",{className:"more",type:"button",textContent:"⋯",ariaLabel:"تعديل "+h.name});
+    more.onclick = () => editHabit(h);
+    list.append(el("div",{className:"habit"+(isDone?" done":"")},[main, el("div",{className:"h-side"},[dots, more])]));
+  });
+  // الحلقة الصغيرة فوق
+  const total = S.habits.length, done = S.habits.filter(h=>h.done[tk]).length;
+  $("#miniTxt").textContent = done+"/"+total;
+  $("#miniRing").style.strokeDashoffset = 144.5*(1-(total?done/total:0));
+  renderLinkSel();
+}
+function toggleDay(h, k){
+  if(h.done[k]) delete h.done[k]; else h.done[k]=true;
+  save(); renderHabits();
+  if(k===dkey() && h.done[k]){ const s=streak(h); if(s>1 && s%7===0) toast("🔥 "+s+" يوم ورا بعض! كمّل"); }
+}
+function editHabit(h){
+  const bg = el("div",{className:"sheet-bg"});
+  const name = el("input",{type:"text",value:h.name,maxLength:40,id:"editName"});
+  let em = h.emoji;
+  const pick = el("div",{className:"emoji-pick"}, EMOJIS.map(e=>{const b=el("button",{type:"button",textContent:e}); b.setAttribute("aria-pressed",e===em); b.onclick=()=>{em=e;pick.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b))}; return b;}));
+  const del = el("button",{className:"btn line",type:"button",textContent:"احذف العادة"});
+  del.onclick = () => { if(del.dataset.sure){ S.habits=S.habits.filter(x=>x!==h); if(S.settings.linkHabit===h.id) S.settings.linkHabit=""; save(); close(); renderHabits(); toast("انحذفت"); } else { del.dataset.sure=1; del.className="btn danger"; del.textContent="أكيد؟ اكبس كمان مرة"; } };
+  const ok = el("button",{className:"btn",type:"button",textContent:"احفظ"});
+  ok.onclick = () => { const v=name.value.trim(); if(!v) return name.focus(); h.name=v; h.emoji=em; save(); close(); renderHabits(); };
+  const up = el("button",{className:"btn line",type:"button",textContent:"↑ لفوق"});
+  up.onclick = () => { const i=S.habits.indexOf(h); if(i>0){ S.habits.splice(i,1); S.habits.splice(i-1,0,h); save(); renderHabits(); } close(); };
+  const sheet = el("div",{className:"sheet",role:"dialog",ariaModal:"true"},[el("h3",{textContent:"عدّل العادة"}), name, pick, el("div",{className:"row-btns"},[ok, up, del])]);
+  bg.append(sheet); document.body.append(bg); name.focus();
+  function close(){ bg.remove(); document.removeEventListener("keydown",esc); }
+  function esc(e){ if(e.key==="Escape") close(); }
+  bg.onclick = e => { if(e.target===bg) close(); };
+  document.addEventListener("keydown",esc);
+}
+$("#emojiPick").append(...EMOJIS.map(e=>{const b=el("button",{type:"button",textContent:e}); b.setAttribute("aria-pressed",e===pickedEmoji); b.onclick=()=>{pickedEmoji=e;$("#emojiPick").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b))}; return b;}));
+$("#addToggle").onclick = () => { const f=$("#addForm"); f.hidden=!f.hidden; if(!f.hidden) $("#newName").focus(); };
+$("#addForm").onsubmit = e => { e.preventDefault(); const v=$("#newName").value.trim(); if(!v) return;
+  S.habits.push({id:uid(),name:v,emoji:pickedEmoji,done:{},created:dkey()}); $("#newName").value=""; save(); renderHabits(); toast("انزادت ✓"); };
+
+// ---------- المؤقت ----------
+const MODE_LBL = {focus:"جلسة تركيز",short:"استراحة قصيرة",long:"استراحة طويلة"};
+const PRESETS = [[25,5,15],[50,10,20],[90,20,30],[15,3,10]];
+const durOf = m => S.settings.timer[m]*60*1000;
+let tick = null;
+const T = S.timer;
+const running = () => !!T.endAt;
+function leftMs(){ return running() ? Math.max(0, T.endAt - Date.now()) : (T.left ?? durOf(T.mode)); }
+const fmt = ms => { const s=Math.ceil(ms/1000); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); };
+function renderTimer(){
+  const ms = leftMs(), total = durOf(T.mode);
+  $("#clock").textContent = fmt(ms);
+  $("#clockLbl").textContent = MODE_LBL[T.mode];
+  $("#dialRing").style.strokeDashoffset = 552.9*(1 - ms/total);
+  document.querySelectorAll(".modes button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.mode===T.mode));
+  $("#playIco").innerHTML = running() ? '<rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/>' : '<path d="M8 5.5v13a1 1 0 0 0 1.5.9l10.4-6.5a1 1 0 0 0 0-1.8L9.5 4.6A1 1 0 0 0 8 5.5z"/>';
+  $("#playBtn").ariaLabel = running() ? "وقّف" : "ابدأ";
+  const every = S.settings.timer.every;
+  $("#sessions").replaceChildren(...[...Array(every)].map((_,i)=>el("i",{className: i < (T.count % every) ? "on" : ""})));
+  $("#focusToday").textContent = Math.round(S.focus[dkey()]||0);
+  if(running()) document.title = fmt(ms)+" · "+MODE_LBL[T.mode]; else document.title = S.settings.title;
+  const p = S.settings.timer, cur = [p.focus,p.short,p.long].join(",");
+  document.querySelectorAll("#presets .chip").forEach(c=>c.setAttribute("aria-pressed", c.dataset.v===cur));
+}
+function start(){ if(running()) return; T.endAt = Date.now() + leftMs(); T.left=null; save(); loop(); renderTimer(); unlockAudio(); }
+function pause(){ if(!running()) return; T.left = leftMs(); T.endAt=null; save(); stopLoop(); renderTimer(); }
+function reset(){ T.endAt=null; T.left=null; save(); stopLoop(); renderTimer(); }
+function setMode(m){ T.mode=m; T.endAt=null; T.left=null; save(); stopLoop(); renderTimer(); }
+function loop(){ stopLoop(); tick = setInterval(()=>{ if(leftMs()<=0) finish(); else renderTimer(); }, 250); }
+function stopLoop(){ clearInterval(tick); tick=null; }
+function finish(skipped){
+  stopLoop();
+  const was = T.mode;
+  if(was==="focus"){
+    if(!skipped){ const k=dkey(); S.focus[k]=(S.focus[k]||0)+S.settings.timer.focus;
+      const h = S.habits.find(x=>x.id===S.settings.linkHabit); if(h && !h.done[k]){ h.done[k]=true; renderHabits(); } }
+    T.count++;
+    T.mode = T.count % S.settings.timer.every === 0 ? "long" : "short";
+  } else T.mode = "focus";
+  T.endAt=null; T.left=null;
+  if(!skipped){ chime(); notify(was==="focus" ? "خلصت جلسة التركيز، وقت الاستراحة ☕" : "خلصت الاستراحة، يلا نرجع نركّز"); toast(was==="focus" ? "عاش! خلصت جلسة تركيز" : "خلصت الاستراحة"); }
+  save(); renderTimer();
+  if(S.settings.autoStart && !skipped) start();
+}
+$("#playBtn").onclick = () => running() ? pause() : start();
+$("#resetBtn").onclick = reset;
+$("#skipBtn").onclick = () => finish(true);
+document.querySelectorAll(".modes button").forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+$("#presets").append(...PRESETS.map(p=>{ const c=el("button",{className:"chip",type:"button",textContent:p[0]+" / "+p[1]}); c.dataset.v=p.join(",");
+  c.onclick=()=>{ Object.assign(S.settings.timer,{focus:p[0],short:p[1],long:p[2]}); if(!running()) T.left=null; save(); renderTimer(); fillSettings(); }; return c; }));
+function renderLinkSel(){
+  const s=$("#linkSel"), cur=S.settings.linkHabit;
+  s.replaceChildren(el("option",{value:"",textContent:"ولا شي"}), ...S.habits.map(h=>el("option",{value:h.id,textContent:h.emoji+" "+h.name,selected:h.id===cur})));
+}
+$("#linkSel").onchange = e => { S.settings.linkHabit = e.target.value; save(); };
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ if(running() && leftMs()<=0) finish(); renderTimer(); renderHabits(); } });
+
+// الصوت: نغمة قصيرة بـWeb Audio، بدون ملفات
+let actx;
+function unlockAudio(){ try{ actx = actx || new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume(); }catch(e){} }
+function chime(){
+  if(!S.settings.sound || !actx) return;
+  const t0 = actx.currentTime;
+  [660,880,1320].forEach((f,i)=>{ const o=actx.createOscillator(), g=actx.createGain(); o.type="sine"; o.frequency.value=f;
+    g.gain.setValueAtTime(0.0001,t0+i*0.18); g.gain.exponentialRampToValueAtTime(0.25,t0+i*0.18+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t0+i*0.18+0.5);
+    o.connect(g).connect(actx.destination); o.start(t0+i*0.18); o.stop(t0+i*0.18+0.55); });
+}
+function notify(msg){
+  try{ if("Notification" in window && Notification.permission==="granted" && document.hidden){
+    navigator.serviceWorker?.ready.then(r=>r.showNotification(S.settings.title,{body:msg,icon:"icons/icon-192.png"})).catch(()=>new Notification(S.settings.title,{body:msg})); } }catch(e){}
+}
+
+// ---------- الإعدادات ----------
+function fillSettings(){
+  $("#titleIn").value = S.settings.title;
+  $("#themes").replaceChildren(...Object.entries(THEMES).map(([k,t])=>{ const b=el("button",{className:"theme",type:"button"},[el("i",{style:"background:"+t.c}),document.createTextNode(t.name)]);
+    b.setAttribute("aria-pressed", !S.settings.accent && S.settings.theme===k); b.onclick=()=>{ S.settings.theme=k; S.settings.accent=null; save(); applyTheme(); fillSettings(); }; return b; }));
+  $("#customColor").value = S.settings.accent || THEMES[S.settings.theme].c;
+  document.querySelectorAll("#modeSeg button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===S.settings.mode));
+  const t=S.settings.timer; $("#tFocus").value=t.focus; $("#tShort").value=t.short; $("#tLong").value=t.long; $("#tEvery").value=t.every;
+  $("#swSound").setAttribute("aria-checked", S.settings.sound);
+  $("#swAuto").setAttribute("aria-checked", S.settings.autoStart);
+  const np = "Notification" in window ? Notification.permission : "unsupported";
+  const nb=$("#notifBtn"); nb.disabled = np!=="default"; nb.textContent = np==="granted" ? "مفعّل ✓" : np==="denied" ? "مرفوض من المتصفح" : np==="unsupported" ? "مو مدعوم هون" : "فعّل";
+}
+$("#titleIn").oninput = e => { S.settings.title = e.target.value.trim() || "عاداتي"; save(); renderHabits(); };
+$("#customColor").oninput = e => { S.settings.accent = e.target.value; save(); applyTheme(); };
+$("#customColor").onchange = () => fillSettings();
+document.querySelectorAll("#modeSeg button").forEach(b=>b.onclick=()=>{ S.settings.mode=b.dataset.v; save(); applyTheme(); fillSettings(); });
+[["#tFocus","focus",1,180],["#tShort","short",1,60],["#tLong","long",1,90],["#tEvery","every",2,10]].forEach(([sel,k,mn,mx])=>{
+  $(sel).onchange = e => { const v=Math.min(mx,Math.max(mn,Math.round(+e.target.value||0))); S.settings.timer[k]=v; e.target.value=v; if(!running()) T.left=null; save(); renderTimer(); };
+});
+$("#swSound").onclick = () => { S.settings.sound=!S.settings.sound; save(); fillSettings(); if(S.settings.sound){ unlockAudio(); chime(); } };
+$("#swAuto").onclick = () => { S.settings.autoStart=!S.settings.autoStart; save(); fillSettings(); };
+$("#notifBtn").onclick = async () => { try{ await Notification.requestPermission(); }catch(e){} fillSettings(); };
+$("#exportBtn").onclick = () => {
+  const blob = new Blob([JSON.stringify(S,null,2)],{type:"application/json"});
+  const a = el("a",{href:URL.createObjectURL(blob),download:"habits-backup-"+dkey()+".json"}); document.body.append(a); a.click(); a.remove();
+  toast("نزلت النسخة");
+};
+$("#importIn").onchange = async e => {
+  const f=e.target.files[0]; if(!f) return;
+  try{ const d=JSON.parse(await f.text()); if(!Array.isArray(d.habits)) throw 0; localStorage.setItem(KEY, JSON.stringify(d)); S=load(); Object.assign(T, S.timer); S.timer=T; applyTheme(); renderAll(); toast("رجعت بياناتك ✓"); }
+  catch(err){ toast("هالملف مش نسخة من هالتطبيق"); }
+  e.target.value="";
+};
+$("#demoBtn").onclick = () => {
+  const today=new Date(), mk=(name,emoji,pattern)=>{ const done={}; pattern.forEach((on,i)=>{ if(on) done[dkey(addDays(today,i-pattern.length+1))]=true; }); return {id:uid(),name,emoji,done,created:dkey()}; };
+  S.habits = [
+    mk("قراية 10 صفحات","📖",[1,1,0,1,1,1,1,1,1,1,1,1,1,0]),
+    mk("8 كاسات مي","💧",[1,1,1,1,1,1,1,1,1,1,1,1,1,1]),
+    mk("مشي نص ساعة","🏃",[0,1,0,1,1,0,1,1,0,1,1,1,0,0]),
+    mk("تأمل 5 دقايق","🧘",[0,0,0,0,0,1,1,0,1,1,1,1,1,0]),
+    mk("نوم قبل 12","😴",[1,0,1,1,0,1,1,1,0,1,1,0,1,0])
+  ];
+  S.focus[dkey()] = 75; S.timer.count = 3;
+  save(); renderAll(); toast("انعبّت أمثلة"); switchTab("habits");
+};
+$("#wipeBtn").onclick = e => { const b=e.currentTarget; if(!b.dataset.sure){ b.dataset.sure=1; b.className="btn danger"; b.textContent="أكيد؟ اكبس كمان مرة"; setTimeout(()=>{delete b.dataset.sure;b.className="btn line";b.textContent="امسح كل شي"},4000); return; }
+  stopLoop(); S=DEFAULT(); Object.assign(T,S.timer); S.timer=T; save(); applyTheme(); renderAll(); toast("انمسح كل شي"); delete b.dataset.sure; b.className="btn line"; b.textContent="امسح كل شي"; };
+
+// ---------- التبويبات ----------
+function switchTab(name){
+  document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===name || (name==="habits" && b.dataset.tab==="habits")));
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on", v.dataset.view===name));
+  $("#split").classList.toggle("settings-on", name==="settings");
+  if(name==="settings") fillSettings();
+  scrollTo({top:0});
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+
+function renderAll(){ renderHabits(); renderTimer(); fillSettings(); }
+applyTheme(); renderAll();
+if(running()){ if(leftMs()<=0) finish(); else loop(); }
+setInterval(()=>{ if($("#dayLabel").textContent!==weekdayAr(new Date())) renderHabits(); }, 60000);
+
+if("serviceWorker" in navigator && location.protocol!=="file:") navigator.serviceWorker.register("sw.js").catch(()=>{});
+})();
+</script>
+</body>
+</html>
