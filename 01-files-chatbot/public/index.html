@@ -17,7 +17,9 @@
   body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;display:flex;justify-content:center}
   .app{width:100%;max-width:560px;height:100%;display:flex;flex-direction:column;background:var(--panel);border-inline:1px solid var(--line)}
   header{display:flex;align-items:center;gap:12px;padding:calc(14px + env(safe-area-inset-top)) 18px 14px;border-bottom:1px solid var(--line)}
-  .dot{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:600;flex:none}
+  .dot{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:600;flex:none;overflow:hidden}
+  .dot.has-logo{background:transparent}
+  .dot img{width:100%;height:100%;object-fit:cover;display:block}
   header h1{font-size:17px;margin:0;font-weight:600}
   header p{margin:0;font-size:13px;color:var(--muted)}
   .live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#2fb36b;margin-inline-end:5px}
@@ -87,7 +89,13 @@ fetch("/api/config").then(r=>r.json()).then(c=>{
   document.title=c.botName;
   document.getElementById("title").textContent=c.botName;
   document.getElementById("subtitle").textContent="بيجاوب من معلومات "+c.businessName;
-  document.getElementById("avatar").textContent=(c.businessName||"•").trim().charAt(0);
+  const av=document.getElementById("avatar");
+  if(c.logo){
+    const img=new Image();img.alt="";img.src=c.logo;
+    img.onerror=()=>{av.classList.remove("has-logo");av.textContent=(c.businessName||"•").trim().charAt(0);};
+    av.textContent="";av.classList.add("has-logo");av.appendChild(img);
+    const fav=document.createElement("link");fav.rel="icon";fav.href=c.logo;document.head.appendChild(fav);
+  } else av.textContent=(c.businessName||"•").trim().charAt(0);
   if(c.accentColor)document.documentElement.style.setProperty("--accent",c.accentColor);
   if(c.language&&c.language!=="ar"){document.documentElement.lang=c.language;document.documentElement.dir="ltr"}
   add(c.welcome,"bot");

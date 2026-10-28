@@ -1,4 +1,4 @@
-// بيرجّع الإعدادات الي بيحتاجها شكل الصفحة (الاسم، الترحيب، اللون). بدون أي شي سري.
+// بيرجّع الإعدادات الي بيحتاجها شكل الصفحة (الاسم، الترحيب، اللون، اللوقو). بدون أي شي سري.
 const fs = require("fs");
 const path = require("path");
 
@@ -11,6 +11,7 @@ module.exports = (req, res) => {
     welcome: c.welcome,
     suggestions: c.suggestions || [],
     accentColor: c.accentColor,
+    logo: typeof c.logo === "string" && /^(https:\/\/|[\w.\/-]+$)/.test(c.logo) ? c.logo : "",
     language: c.language || "ar",
   }));
 };
