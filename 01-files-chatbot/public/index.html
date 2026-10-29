@@ -5,26 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>المساعد</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;500;600;700&display=swap">
 <style>
   :root{
-    --accent:#6b4fe0; --bg:#f6f5f2; --panel:#ffffff; --ink:#1b1a22; --muted:#6e6b78; --line:#e7e4ee;
-    --bot:#f1eff6; --font:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
+    --accent:#6f4527; --bg:#efe3d6; --panel:#fffaf4; --ink:#2b1a10; --muted:#8a7464; --line:#eadccd;
+    --bot:#f3e6d7; --font:"Baloo Bhaijaan 2",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
   }
-  @media (prefers-color-scheme:dark){:root{--bg:#121117;--panel:#1a1920;--ink:#f0eef6;--muted:#a19dad;--line:#2b2934;--bot:#24222d;color-scheme:dark}}
+  @media (prefers-color-scheme:dark){:root{--bg:#140d09;--panel:#1d140e;--ink:#f6ebe0;--muted:#b39c8a;--line:#36271c;--bot:#2c1f16;color-scheme:dark}}
   *{box-sizing:border-box}
   html,body{height:100%;margin:0}
-  body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;display:flex;justify-content:center}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17px;display:flex;justify-content:center}
   .app{width:100%;max-width:560px;height:100%;display:flex;flex-direction:column;background:var(--panel);border-inline:1px solid var(--line)}
   header{display:flex;align-items:center;gap:12px;padding:calc(14px + env(safe-area-inset-top)) 18px 14px;border-bottom:1px solid var(--line)}
-  .dot{width:40px;height:40px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:600;flex:none;overflow:hidden}
+  .dot{width:46px;height:46px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:600;flex:none;overflow:hidden}
   .dot.has-logo{background:transparent}
   .dot img{width:100%;height:100%;object-fit:cover;display:block}
-  header h1{font-size:17px;margin:0;font-weight:600}
+  header h1{font-size:20px;margin:0;font-weight:700;line-height:1.2}
   header p{margin:0;font-size:13px;color:var(--muted)}
   .live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#2fb36b;margin-inline-end:5px}
   main{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px}
-  .msg{max-width:85%;padding:10px 14px;border-radius:16px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+  .msg{max-width:85%;padding:11px 16px;border-radius:20px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
   .bot{background:var(--bot);align-self:flex-start;border-start-start-radius:4px}
   .me{background:var(--accent);color:#fff;align-self:flex-end;border-start-end-radius:4px}
   .err{background:transparent;border:1px dashed #c94b4b;color:#c94b4b;align-self:center;font-size:14px}
