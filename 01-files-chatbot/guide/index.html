@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ابني بوت بكلود · الشرح الكامل</title>
+<meta name="description" content="شرح خطوة خطوة لكيف تبني بوت بيجاوب الناس من ملفاتك إنت، بكلود. من سلسلة BUILD IT WITH CLAUDE على @ai.byrawan">
+<link rel="icon" href="../public/logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Beiruti:wght@400;500;700;800&family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#fdfaf6; --peach:#f3d6c0; --peach2:#f8e7da; --ink:#1b1a24; --muted:#6d6470;
+    --brown:#a5643c; --coffee:#6f4527; --line:#ecdccd; --card:#fffaf4; --soft:#f3e6d7;
+    --ok:#2e8b57; --warn:#b5462f;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#16110d; --peach:#2a1c13; --peach2:#1f1610; --ink:#f6ebe0; --muted:#b8a796;
+    --brown:#e0a77c; --coffee:#e8b893; --line:#3a2a1e; --card:#21170f; --soft:#2c1f16; --ok:#6fcf97; --warn:#ff8a73;
+  }}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Beiruti,"Space Grotesk",system-ui,sans-serif;font-size:19px;line-height:1.75}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px}
+  header.hero{background:linear-gradient(var(--peach),var(--peach2) 60%,var(--bg));padding:56px 0 40px}
+  .tag{font:500 13px "DM Mono",monospace;letter-spacing:2px;color:var(--brown);direction:ltr;text-align:right}
+  h1{font-size:clamp(38px,8vw,60px);line-height:1.1;margin:14px 0 14px;font-weight:800}
+  h2{font-size:clamp(28px,5.5vw,36px);line-height:1.25;margin:0 0 10px;font-weight:800}
+  h3{font-size:23px;margin:26px 0 6px;font-weight:800}
+  p{margin:10px 0}
+  .lead{font-size:21px;color:var(--muted)}
+  .em{color:var(--brown)}
+  a{color:var(--brown);font-weight:700}
+  .btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+  .btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;padding:12px 20px;border-radius:14px;border:2px solid var(--ink);color:var(--ink);background:var(--card);box-shadow:4px 4px 0 var(--ink)}
+  .btn.primary{background:var(--coffee);color:#fff;border-color:var(--ink)}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.primary{color:#16110d}}
+  .bean{width:96px;height:96px;float:left;margin:0 0 10px 10px}
+  section{padding:38px 0;border-top:1px solid var(--line)}
+  .toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:16px;padding:0;list-style:none}
+  .toc a{display:block;text-decoration:none;color:var(--ink);font-weight:600;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+  .toc a span{font:500 13px "DM Mono",monospace;color:var(--brown);margin-left:6px}
+  .card{background:var(--card);border:2px solid var(--ink);border-radius:18px;box-shadow:5px 5px 0 var(--ink);padding:18px 22px;margin:18px 0}
+  .flow{list-style:none;padding:0;margin:16px 0;counter-reset:f}
+  .flow li{position:relative;padding:0 64px 22px 0}
+  .flow li::before{counter-increment:f;content:counter(f);position:absolute;right:0;top:0;width:44px;height:44px;border-radius:50%;border:2px solid var(--ink);background:var(--card);display:grid;place-items:center;font:600 17px "DM Mono",monospace;color:var(--coffee)}
+  .flow li:not(:last-child)::after{content:"";position:absolute;right:21px;top:48px;bottom:4px;border-right:2px dotted var(--brown)}
+  .flow b{display:block;font-size:20px}
+  .flow small{color:var(--muted);font-size:17px}
+  .needs{display:grid;gap:12px;margin-top:14px}
+  .need{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+  .need .n{flex:none;font:600 18px "Space Grotesk";direction:ltr;min-width:118px;color:var(--coffee)}
+  .step{display:flex;gap:16px;margin-top:30px}
+  .step .num{flex:none;width:52px;height:52px;border-radius:14px;background:var(--ink);color:var(--peach);display:grid;place-items:center;font:600 20px "DM Mono",monospace}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .step .num{background:var(--coffee);color:#16110d}}
+  .step h3{margin-top:8px}
+  ol.sub,ul.sub{padding-right:22px;margin:8px 0}
+  ol.sub li,ul.sub li{margin:6px 0}
+  code{font-family:"DM Mono",monospace;font-size:.86em;background:var(--soft);padding:2px 7px;border-radius:7px;direction:ltr;unicode-bidi:embed;white-space:nowrap}
+  .path{font-family:"DM Mono",monospace;font-size:15px;direction:ltr;unicode-bidi:embed}
+  .prompt{position:relative;background:var(--ink);color:#fdfaf6;border-radius:16px;padding:18px 20px 18px 20px;margin:14px 0;font-size:18px;line-height:1.7}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .prompt{background:#2c1f16}}
+  .prompt .copy{position:absolute;left:12px;top:12px;font:500 13px "DM Mono",monospace;background:transparent;color:var(--peach);border:1px solid rgba(243,214,192,.4);border-radius:8px;padding:4px 10px;cursor:pointer}
+  .prompt .lbl{display:block;font:500 12px "DM Mono",monospace;letter-spacing:1.5px;color:#e8b893;margin-bottom:6px;direction:ltr;text-align:right}
+  .note{border-right:4px solid var(--brown);background:var(--soft);border-radius:10px;padding:12px 16px;margin:16px 0}
+  .note.warn{border-color:var(--warn)}
+  .note b{display:block}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:17px}
+  th,td{border-bottom:1px solid var(--line);padding:10px 8px;text-align:right;vertical-align:top}
+  th{font-weight:800;color:var(--coffee)}
+  td code{white-space:nowrap}
+  .tree{font:15px/1.9 "DM Mono",monospace;direction:ltr;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;overflow-x:auto}
+  .tree span{color:var(--muted);font-family:Beiruti;font-size:16px}
+  details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin:10px 0}
+  summary{font-weight:800;cursor:pointer}
+  footer{border-top:1px solid var(--line);padding:30px 0 50px;margin-top:20px}
+  .sig{display:flex;align-items:center;gap:14px}
+  .sig img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:1px solid var(--line)}
+  .sig b{font:700 20px "Space Grotesk";direction:ltr;display:block;text-align:right}
+  .sig small{font:400 13px "DM Mono";color:var(--muted);direction:ltr;display:block;text-align:right}
+  @media (max-width:520px){body{font-size:18px}.bean{width:72px;height:72px}.need{flex-direction:column;gap:4px}.need .n{min-width:0}td code{white-space:normal}}
+</style>
+</head>
+<body>
+
+<header class="hero"><div class="wrap">
+  <div class="tag">BUILD IT WITH CLAUDE · 02</div>
+  <img class="bean" src="../public/logo.svg" alt="مستر بن">
+  <h1>ابني بوت بكلود</h1>
+  <p class="lead">الشرح الكامل، خطوة خطوة، لبوت بيحكي مع الناس لحالو، وبيجاوب من ملفاتك إنت بس، 24 ساعة. لمحلك، لعيادتك، لكورسك، أو لأي مشروع</p>
+  <div class="btns">
+    <a class="btn primary" href="https://rawan-bot.vercel.app" target="_blank" rel="noopener">☕ جرّب مستر بن</a>
+    <a class="btn" href="https://github.com/rawan-adnan/ai.byrawan/tree/main/01-files-chatbot" target="_blank" rel="noopener">📁 الكود على GitHub</a>
+  </div>
+  <ul class="toc">
+    <li><a href="#idea"><span>01</span>المبدأ</a></li>
+    <li><a href="#knowledge"><span>02</span>منين بيجيب معلوماتو</a></li>
+    <li><a href="#control"><span>03</span>كيف بتتحكم فيه</a></li>
+    <li><a href="#need"><span>04</span>شو بتحتاج</a></li>
+    <li><a href="#steps"><span>05</span>الخطوات بالتفصيل</a></li>
+    <li><a href="#edit"><span>06</span>كيف بتعدّل عليه بعدين</a></li>
+    <li><a href="#cost"><span>07</span>الكلفة والأمان</a></li>
+    <li><a href="#help"><span>08</span>إذا علقت</a></li>
+  </ul>
+</div></header>
+
+<main class="wrap">
+
+<section id="idea">
+  <div class="tag">HOW IT WORKS</div>
+  <h2>المبدأ ببساطة</h2>
+  <p>البوت مش كلود لحالو. هو صفحة شات صغيرة، ووراها سيرفر، والسيرفر هو الي بيحكي مع كلود. كل سؤال بيمرق بأربع محطات:</p>
+  <ol class="flow">
+    <li><b>الزبون بيسأل</b><small>من أي موبايل أو لابتوب، عالرابط تبع البوت</small></li>
+    <li><b>السيرفر بيستلم السؤال</b><small>شغّال على Vercel، ومفتاح الـAPI مخبّى عندو، ما بيوصل للزبون أبدا</small></li>
+    <li><b>بيبعتو لكلود مع ملفاتك</b><small>ومعو قاعدة واضحة: جاوب من هالملفات بس</small></li>
+    <li><b>والرد بيرجع للزبون</b><small>من ملفاتك إنت، مش من راس كلود</small></li>
+  </ol>
+  <p>يعني البوت ما "بيتعلم" متل ما الناس متخيلة. بكل سؤال، السيرفر بيعطي كلود ملفاتك من جديد، وكلود بيجاوب منها. ولهيك أي تعديل بتعملو على الملفات، البوت بيعرفو فورا</p>
+</section>
+
+<section id="knowledge">
+  <div class="tag">THE KNOWLEDGE</div>
+  <h2>منين بيجيب معلوماتو؟</h2>
+  <p>من فولدر اسمو <code>knowledge</code>. جواه ملفات نص عادية بصيغة <code>.md</code>، أي شي بتكتبو فيها البوت بيعرفو، وأي شي مش فيها ما بيعرفو</p>
+  <div class="tree">knowledge/<br>&nbsp; menu.md &nbsp;<span>← المنيو والأسعار</span><br>&nbsp; info.md &nbsp;<span>← الدوام، المكان، الحجز، التوصيل، الدفع، السياسات</span></div>
+  <p>شكل الملف بسيط، عنوان لكل قسم، وسطر لكل معلومة:</p>
+  <div class="tree" style="direction:rtl;text-align:right;font-family:Beiruti;font-size:17px"># قهوة سخنة<br>- إسبريسو: 1.200 د.ك<br>- لاتيه: 1.900 د.ك<br># أوقات الدوام<br>- السبت للخميس: من 7 الصبح لـ 11 بالليل</div>
+  <p>مش لازم يكونو ملفين بس. فيك تزيد ملف للأسئلة الي بتتكرر، أو للأسعار، أو لشروط الحجز. البوت بيقرا كل ملف <code>.md</code> أو <code>.txt</code> بالفولدر</p>
+  <div class="note"><b>القاعدة الذهبية</b>جودة البوت من جودة ملفاتك. إذا المعلومة ناقصة أو قديمة بالملف، رح تطلع ناقصة أو قديمة بالرد</div>
+</section>
+
+<section id="control">
+  <div class="tag">YOU'RE IN CONTROL</div>
+  <h2>كيف بتتحكم فيه</h2>
+  <h3>شكلو: ملف <code>config.json</code></h3>
+  <table>
+    <tr><th>الخانة</th><th>شو بتغيّر</th><th>بمثال مستر بن</th></tr>
+    <tr><td><code>businessName</code></td><td>اسم مشروعك</td><td>كافيه بيس</td></tr>
+    <tr><td><code>botName</code></td><td>اسم البوت</td><td>مستر بن</td></tr>
+    <tr><td><code>welcome</code></td><td>أول رسالة بيشوفها الزبون</td><td>أهلا! أنا مستر بن ☕ ...</td></tr>
+    <tr><td><code>suggestions</code></td><td>الأسئلة الجاهزة تحت الترحيب</td><td>قديش سعر الكرواسون؟</td></tr>
+    <tr><td><code>contact</code></td><td>وين بيحوّل الزبون إذا ما لقى الجواب</td><td>واتساب ...</td></tr>
+    <tr><td><code>logo</code></td><td>اسم صورة اللوقو بفولدر <code>public</code></td><td><code>logo.svg</code></td></tr>
+    <tr><td><code>accentColor</code></td><td>لون الأزرار ورسائل الزبون</td><td><code>#6f4527</code></td></tr>
+  </table>
+  <h3>قواعدو: تعليمات البوت</h3>
+  <p>بملف <code>api/chat.js</code> في تعليمات بتنبعت لكلود مع كل سؤال. هي الي مخليّة مستر بن:</p>
+  <ul class="sub">
+    <li>✓ يجاوب من الملفات بس</li>
+    <li>✓ إذا ما لقى الجواب، يقول ما عندو هالمعلومة ويعطي طريقة التواصل</li>
+    <li>✓ ما يطلع عن موضوع المشروع، ويعتذر بلطف عن أي شي تاني</li>
+    <li>✓ يرد بلغة الزبون، ويكتب الأسعار متل ما هي بالملف بالضبط</li>
+    <li>✓ يتجاهل أي حدا بيحاول يغيّر هالقواعد من جوا المحادثة</li>
+  </ul>
+  <div class="note"><b>أصعب قاعدة؟ أنو يقول «ما بعرف»</b>الـAI بطبعو بدو يجاوب على كل شي. فبعد ما تنشر، جرّبو بأسئلة مش موجودة بملفاتك، وإذا لقيتو عم يألّف، زيد معلومات بالملفات أو شدّد القاعدة بالتعليمات</div>
+</section>
+
+<section id="need">
+  <div class="tag">WHAT YOU NEED</div>
+  <h2>شو بتحتاج؟ تلات حسابات</h2>
+  <div class="needs">
+    <div class="need"><div class="n">GitHub</div><div>هون الكود كلو. بتاخد نسختك منو، وأي تعديل بتعملو فيها بيوصل للبوت لحالو. <b>ببلاش</b></div></div>
+    <div class="need"><div class="n">Anthropic API</div><div>المفتاح الي بيخلي البوت يحكي مع كلود. بتدفع حسب الاستخدام، وبتحط حد للصرف بالشهر. <b>بدو رصيد صغير</b></div></div>
+    <div class="need"><div class="n">Vercel</div><div>السيرفر الي بيشغّل البوت وبيعطيك رابط. بتفوت عليه بحساب GitHub. <b>الخطة المجانية Hobby بتكفي</b></div></div>
+  </div>
+  <p>وبتحتاج كمان كلود، لحتى يحوّلك المنيو أو معلوماتك لملفات البوت</p>
+</section>
+
+<section id="steps">
+  <div class="tag">THE STEPS</div>
+  <h2>الخطوات بالتفصيل</h2>
+
+  <div class="step"><div class="num">01</div><div>
+    <h3>خود نسخة من الريبو</h3>
+    <ol class="sub">
+      <li>اعمل حساب على <a href="https://github.com" target="_blank" rel="noopener">github.com</a> إذا ما عندك</li>
+      <li>افتح <a href="https://github.com/rawan-adnan/ai.byrawan" target="_blank" rel="noopener">الريبو</a> واكبس <b>Fork</b> فوق، وبعدين <b>Create fork</b></li>
+      <li>هيك صار عندك نسخة كاملة بحسابك: <span class="path">your-name/ai.byrawan</span>، والبوت بفولدر <code>01-files-chatbot</code></li>
+    </ol>
+  </div></div>
+
+  <div class="step"><div class="num">02</div><div>
+    <h3>اعمل مفتاح API</h3>
+    <ol class="sub">
+      <li>افتح <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a> وسجّل</li>
+      <li>من <b>Billing</b> زيد رصيد صغير، 5$ بيكفوا للتجربة وأكتر</li>
+      <li>من <b>Limits</b> حط حد صرف بالشهر، متل 5$. هيك حتى لو حدا ضغط عالبوت، ما رح يصرف أكتر</li>
+      <li>من <b>API Keys</b> اكبس <b>Create Key</b>، سمّيه متل <code>my-bot</code>، وانسخو بزر النسخ. المفتاح بيبلش بـ<code>sk-ant-</code></li>
+    </ol>
+    <div class="note warn"><b>المفتاح متل كلمة السر</b>لا تبعتو لحدا، ولا تحطو بأي ملف بالريبو، ولا تصوّرو. مكانو الوحيد هو إعدادات Vercel بالخطوة الجاية</div>
+  </div></div>
+
+  <div class="step"><div class="num">03</div><div>
+    <h3>انشرو على Vercel</h3>
+    <ol class="sub">
+      <li>افتح <a href="https://vercel.com" target="_blank" rel="noopener">vercel.com</a> وفوت بـ<b>Continue with GitHub</b></li>
+      <li>افتح <a href="https://vercel.com/new" target="_blank" rel="noopener">vercel.com/new</a>. تحت <b>Import Git Repository</b> اكبس <b>Import</b> جنب <code>ai.byrawan</code>. إذا مش ظاهر، اكبس <b>Adjust GitHub App Permissions</b> وعطيه وصول للريبو</li>
+      <li><b>Project Name:</b> اسم قصير، لأنو رح يصير هو الرابط. مثلا <code>my-bot</code> بيعطيك <span class="path">my-bot.vercel.app</span></li>
+      <li><b>Root Directory:</b> اكبس <b>Edit</b>، اختار <code>01-files-chatbot</code>، و<b>Continue</b></li>
+      <li><b>Application Preset:</b> خليه <b>Other</b>. إذا طلع تحذير <i>Possible configuration mismatch</i>، عادي، تجاهلو</li>
+      <li>افتح <b>Environment Variables</b>: بالـ<b>Key</b> اكتب <code>ANTHROPIC_API_KEY</code>، وبالـ<b>Value</b> الصق المفتاح بدون أي فراغ</li>
+      <li>اكبس <b>Deploy</b>. بعد ثواني بيطلعلك <b>Deployed to Production</b>، واكبس <b>Visit</b> لتشوف البوت شغال بمثال مستر بن</li>
+    </ol>
+  </div></div>
+
+  <div class="step"><div class="num">04</div><div>
+    <h3>بدّل الملفات بملفاتك</h3>
+    <p>هون البوت بيصير إلك. أول شي خلّي كلود يكتبلك الملفات:</p>
+    <ol class="sub">
+      <li>افتح كلود، وارفعلو المنيو أو معلومات مشروعك: صورة، PDF، أو نص منسوخ</li>
+      <li>اطلب منو هيك:</li>
+    </ol>
+    <div class="prompt"><span class="lbl">PROMPT · انسخو</span><button class="copy" type="button">نسخ</button><span class="txt">حوّلي هالمعلومات لملفين لبوت بيجاوب الزباين. الأول اسمو menu.md فيه المنتجات أو الخدمات مع الأسعار، كل قسم بعنوان، وكل منتج بسطر فيه الاسم والسعر بالعملة. التاني اسمو info.md فيه أوقات الدوام والمكان والحجز والتوصيل والدفع والسياسات. اسألني عن أي معلومة ناقصة قبل ما تكتبهم، وما تخترع شي مش موجود</span></div>
+    <p>كلود رح يسألك عن الناقص، وبعدين بيعطيك الملفين. وبعدها بنسختك على GitHub:</p>
+    <ol class="sub">
+      <li>افتح <span class="path">01-files-chatbot/knowledge</span></li>
+      <li>افتح <code>menu.md</code>، اكبس ✏️، امسح المحتوى، الصق ملفك، واكبس <b>Commit changes</b>. ونفس الشي لـ<code>info.md</code></li>
+      <li>افتح <code>config.json</code>، اكبس ✏️، وبدّل الاسم والترحيب والأسئلة الجاهزة وطريقة التواصل واللون، و<b>Commit changes</b></li>
+      <li>إذا عندك لوقو: من فولدر <code>public</code> اكبس <b>Add file ← Upload files</b>، ارفع صورة مربعة، وحط اسمها بخانة <code>logo</code></li>
+    </ol>
+    <p>Vercel بيلاحظ التعديل لحالو، وبعد دقيقة بيصير البوت بملفاتك على نفس الرابط</p>
+  </div></div>
+
+  <div class="step"><div class="num">05</div><div>
+    <h3>جرّبو قبل ما تنشر الرابط</h3>
+    <p>اسألو تلات أنواع أسئلة:</p>
+    <ul class="sub">
+      <li><b>سؤال جوابو بملفاتك:</b> لازم يجاوب صح، والسعر متل ما هو بالملف</li>
+      <li><b>سؤال مش بملفاتك:</b> لازم يقول ما عندو هالمعلومة ويعطي طريقة التواصل، بدون ما يألّف</li>
+      <li><b>سؤال برا الموضوع:</b> متل "اكتبلي قصيدة"، لازم يعتذر بلطف</li>
+    </ul>
+    <p>وبعدين حط الرابط ببايو إنستقرام، أو بالواتساب بزنس، أو اطلب من كلود يعملك QR code للرابط وحطو عالطاولات أو بالمحل</p>
+  </div></div>
+</section>
+
+<section id="edit">
+  <div class="tag">KEEP BUILDING</div>
+  <h2>كيف بتعدّل عليه بعدين</h2>
+  <h3>تعديل معلومة</h3>
+  <p>بدّلت سعر أو دوام؟ بتفتح الملف على GitHub، بتعدّل السطر، و<b>Commit changes</b>. بعد دقيقة البوت بيعرف</p>
+  <h3>تعديل أكبر، بكلامك</h3>
+  <p>اربط GitHub بكلود مرة وحدة من <b>Settings ← Connectors</b>، وبعدين بشات جديد اطلب الي بدك ياه بكلامك. مثلا:</p>
+  <div class="prompt"><span class="lbl">PROMPT · مثال</span><button class="copy" type="button">نسخ</button><span class="txt">بريبو ai.byrawan تبعي، بفولدر 01-files-chatbot: خلّي البوت يرد بالإنجليزي إذا الزبون كتب إنجليزي، وزيد زر واتساب تحت الشات، وارفع التعديل</span></div>
+  <p>كلود بيعدّل، وأي تعديل بيوصل لـGitHub، بيوصل للبوت لحالو</p>
+  <h3>لا توقف هون</h3>
+  <p>أفكار لتطوّرو: يحجز مواعيد ويبعتلك ياها، يرد على أسئلة طلاب كورسك من ملفات الدروس، يشرح سياسة الإرجاع بمتجرك، أو يكون مساعد داخلي لفريقك من ملفات الشغل</p>
+</section>
+
+<section id="cost">
+  <div class="tag">COST &amp; SAFETY</div>
+  <h2>الكلفة والأمان</h2>
+  <ul class="sub">
+    <li><b>الموديل:</b> البوت شغّال على Claude Haiku 5.5، أسرع وأرخص موديل عند كلود. كل رسالة بتكلف بحدود جزء من السنت، يعني رصيد 5$ بيكفي آلاف الرسائل. الكلفة بتزيد إذا كبرت ملفاتك كتير</li>
+    <li><b>حد الصرف:</b> الحماية الأساسية هي الحد الشهري الي حطيتو بالـConsole</li>
+    <li><b>حد الرسائل:</b> كل زائر إلو 20 رسالة كل 10 دقايق، لحتى ما حدا يستغل البوت</li>
+    <li><b>المفتاح:</b> بيضل بالسيرفر، والزبون ما بيشوفو أبدا</li>
+    <li><b>Vercel:</b> الخطة المجانية Hobby للمشاريع الشخصية. إذا البوت لمشروع تجاري كبير، شوف شروط Vercel</li>
+  </ul>
+  <p>الأسعار بتتغير، فشوف آخر أسعار بصفحة <a href="https://www.anthropic.com/pricing" target="_blank" rel="noopener">Anthropic</a> قبل ما تبلش</p>
+</section>
+
+<section id="help">
+  <div class="tag">IF YOU GET STUCK</div>
+  <h2>إذا علقت</h2>
+  <details><summary>البوت بيكتب «صار في مشكلة بالرد»</summary>
+    <p>يعني البوت وصل لكلود بس Anthropic رجّعت خطأ. افتح مشروعك على Vercel ← <b>Logs</b>، ابعت سؤال للبوت، وشوف السطر الأحمر الي فيه <code>Anthropic API error</code>:</p>
+    <ul class="sub">
+      <li><code>401 invalid x-api-key</code>: المفتاح انلصق غلط. اعمل مفتاح جديد، بدّلو من <b>Settings ← Environment Variables</b>، وبعدين <b>Deployments</b> ← آخر نشر ← <b>⋯</b> ← <b>Redeploy</b></li>
+      <li>خطأ عن الرصيد أو credit: الرصيد خلص أو مش بنفس الـworkspace الي فيه المفتاح. شيك <b>Billing</b> بالـConsole</li>
+    </ul>
+  </details>
+  <details><summary>البوت بيكتب «ANTHROPIC_API_KEY ناقص»</summary>
+    <p>المفتاح مش محطوط بـVercel، أو انحط بعد النشر. زيدو من <b>Settings ← Environment Variables</b> واعمل <b>Redeploy</b>. أي تعديل بالمتغيرات ما بيوصل للبوت بدون نشر جديد</p>
+  </details>
+  <details><summary>عدّلت الملفات والبوت لسا بيجاوب القديم</summary>
+    <p>استنى دقيقة وحدّث الصفحة. إذا ضل، افتح <b>Deployments</b> على Vercel وشوف إذا آخر نشر خلص أو في خطأ. وتأكد أنك عدّلت بنسختك إنت، مش بالريبو الأصلي</p>
+  </details>
+  <details><summary>البوت عم يجاوب شي مش موجود بملفاتي</summary>
+    <p>جرّب نفس السؤال كم مرة. إذا ضل يألّف، زيد المعلومة الصح بالملف، أو زيد بالملف سطر واضح متل «ما في عنا توصيل خاص». وكل ما كانت ملفاتك أوضح، كل ما كان البوت أدق</p>
+  </details>
+  <details><summary>Vercel طلّع تحذير Possible configuration mismatch</summary>
+    <p>عادي، لأنو Vercel شاف ملف <code>package.json</code> وتوقع framework. البوت ما بدو build، فخليه <b>Other</b> وكمّل</p>
+  </details>
+  <p>وإذا علقت بشي تاني، صوّر الشاشة وابعتلي على إنستقرام</p>
+</section>
+
+</main>
+
+<footer><div class="wrap">
+  <div class="sig"><img src="rawan-avatar.png" alt="روان"><div><b>ai.byrawan</b><small>Software Engineer &amp; AI Specialist</small></div></div>
+  <p style="margin-top:16px">من سلسلة <b>BUILD IT WITH CLAUDE · ابني بكلود</b> على إنستقرام <a href="https://www.instagram.com/ai.byrawan/" target="_blank" rel="noopener">@ai.byrawan</a>. بكل حلقة منبني شي جديد بكلود، والكود مفتوح للكل برخصة MIT. تابعني لتعرف أكتر عن كلود</p>
+</div></footer>
+
+<script>
+document.querySelectorAll('.prompt .copy').forEach(b=>b.addEventListener('click',async()=>{
+  const t=b.parentElement.querySelector('.txt').innerText;
+  try{await navigator.clipboard.writeText(t);b.textContent='انتسخ ✓'}catch(e){
+    const r=document.createRange();r.selectNodeContents(b.parentElement.querySelector('.txt'));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='حدّدتلك ياه'}
+  setTimeout(()=>b.textContent='نسخ',2000);
+}));
+</script>
+</body>
+</html>
